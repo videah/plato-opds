@@ -1,0 +1,28 @@
+[package]
+authors = ["videah <videah@selfish.systems>"]
+name = "plato-opds"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+signal-hook = "0.3.15"
+chrono = "0.4.30"
+url = "2.2"
+serde_json = "1.0.105"
+anyhow = "1.0.75"
+toml = "0.7.7"
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]
+
+[dependencies.reqwest]
+version = "0.11.18"
+features = ["rustls-tls", "json", "blocking"]
+default-features = false
+
+[dependencies.quick-xml]
+version = "0.30.0"
+features = ["serialize"]

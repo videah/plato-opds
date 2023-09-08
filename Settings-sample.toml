@@ -1,0 +1,27 @@
+# Whether files should be placed in a directory named after the server they have been pulled from.
+use-server-name-directories = true
+
+# Whether files should be placed in directories based on their file type, giving more organization in Plato's UI.
+# How these folders should be mapped to a name can be configured in the `organization` table.
+organize-by-file-type = true
+
+# What file types you are willing to download and in which order they should be prioritized.
+preferred-file-types = ["application/x-cbz", "application/epub+zip", "application/pdf"]
+
+# A list of server names mapped to a URL containing a valid OPDS catalogue along with any
+# required authentication creds.
+#
+# The following is an example that works with a `calibre-web` instance, the `/opds/new` endpoint is sufficient to
+# sync/download all books hosted.
+#
+# If you would like more control of what books to sync, calibre-web lets you create a shelf to easily mark what books
+# to sync. In this case you would use the `/opds/shelf/<insert_shelf_id_here>` endpoint.
+[servers]
+tailmaws = { url = "https://books.example.net/opds/new", username = "videah", password = "insert-password-here" }
+
+# When `organize-by-file-type` is true, the following table will be used to give folders a name based on their
+# file type for more easy organization.
+[organization]
+epub = "Books"
+cbz = "Manga"
+pdf = "Documents"
