@@ -26,13 +26,19 @@ second-column = "progress"
 and will fetch them if need be.
 
 ## Building
-Information for setting up a toolchain for your e-reader can be found in [Plato's documentation].
-When setup simply running:
+The easiest way to build this project is to use [cross](https://github.com/cross-rs/cross) to cross-compile with Docker.
+Once setup it's as simple as running:
 ```shell
-cargo build --release --target=arm-unknown-linux-gnueabihf
+cross build --release --target=arm-unknown-linux-gnueabihf
 ```
 
-Should produce a working binary.
+### Building without Docker
+After setting up the [Linaro toolchain](https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/arm-linux-gnueabihf/) on your system you can
+compile the project with:
+```shell
+rustup target add arm-unknown-linux-gnueabihf
+cargo build --release --target=arm-unknown-linux-gnueabihf
+```
 
 # Acknowledgements
 This hook is based on the work done for the built-in [Plato article fetcher](https://github.com/baskerville/plato/blob/master/crates/fetcher/src/main.rs).

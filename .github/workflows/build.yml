@@ -1,0 +1,28 @@
+name: release-binaries
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: build
+          target: arm-unknown-linux-gnueabihf
+          args: "--release"
+      - uses: a7ul/tar-action@v1.1.0
+        with:
+          command: c
+          files: "LICENSE target/arm-unknown-linux-gnueabihf/release/plato-opds"
+          outPath: "plato-opds.tar.gz"
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "plato-opds.tar.gz"
