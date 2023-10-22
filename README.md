@@ -8,6 +8,8 @@ any new books/documents I add are downloaded automatically.
 
 This project makes no guarantees to be OPDS spec-compliant and your milage may vary.
 
+Pre-built binaries can be found on the [releases](https://github.com/videah/plato-opds/releases) page.
+
 ## Usage
 
 1. Download/build a `opds_fetcher` binary and create a folder in Plato's bin directory for it (usually `/mnt/onboard/.adds/plato/bin/opds`)
