@@ -18,11 +18,6 @@ jobs:
           command: build
           target: arm-unknown-linux-gnueabihf
           args: "--release"
-      - uses: a7ul/tar-action@v1.1.0
-        with:
-          command: c
-          files: "LICENSE target/arm-unknown-linux-gnueabihf/release/plato-opds"
-          outPath: "plato-opds.tar.gz"
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "plato-opds.tar.gz"
+          artifacts: "LICENSE,target/arm-unknown-linux-gnueabihf/release/plato-opds"
