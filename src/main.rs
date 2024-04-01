@@ -1,4 +1,5 @@
 mod opds;
+mod plato;
 
 use std::{
     collections::HashMap,
@@ -198,17 +199,11 @@ fn print_sync_notification(server_name: &String, results: &[EntryResult]) {
         return;
     }
 
-    let notification = format!(
+    plato::show_notification(&format!(
         "Downloading {} new documents found on '{}'",
         results.len(),
         server_name
-    );
-
-    let event = json!({
-        "type": "notify",
-        "message": notification,
-    });
-    println!("{}", event);
+    ));
 
     // Iterate over each result's file type and count up each instance so we can
     // display the number of each type of file that's being downloaded.
@@ -220,16 +215,15 @@ fn print_sync_notification(server_name: &String, results: &[EntryResult]) {
         })
         .iter()
         .for_each(|(file_extension, count)| {
-            let message = format!("Downloading {} new {}'s", count, file_extension.to_string());
-            let event = json!({
-                "type": "notify",
-                "message": message,
-            });
-            println!("{}", event);
+            plato::show_notification(&format!(
+                "Downloading {} new {}'s",
+                count,
+                file_extension.to_string()
+            ));
         });
 }
 
-fn main() -> Result<(), Error> {
+fn load_and_process_opds() -> Result<(), Error> {
     let mut args = env::args().skip(1);
     let library_path = PathBuf::from(
         args.next()
@@ -252,22 +246,10 @@ fn main() -> Result<(), Error> {
 
     if !online {
         if !wifi {
-            let event = json!({
-                "type": "notify",
-                "message": "Establishing a network connection.",
-            });
-            println!("{}", event);
-            let event = json!({
-                "type": "setWifi",
-                "enable": true,
-            });
-            println!("{}", event);
+            plato::show_notification("Establishing a network connection.");
+            plato::set_wifi(true);
         } else {
-            let event = json!({
-                "type": "notify",
-                "message": "Waiting for the network to come up.",
-            });
-            println!("{}", event);
+            plato::show_notification("Waiting for the network to come up.");
         }
         let mut line = String::new();
         io::stdin().read_line(&mut line)?;
@@ -361,7 +343,10 @@ fn main() -> Result<(), Error> {
                     .unwrap();
 
                 if let Err(err) = link {
-                    eprintln!("Can't download {}: {:#}.", entry.title, err);
+                    plato::show_notification(&format!(
+                        "Error downloading '{}': {:#}.",
+                        entry.title, err
+                    ));
                     return None;
                 }
 
@@ -428,20 +413,12 @@ fn main() -> Result<(), Error> {
                 break;
             }
 
-            // Strip 'urn:uuid:' prefix.
-            let uuid = result
-                .entry
-                .id
-                .strip_prefix("urn:uuid:")
-                .ok_or_else(|| format_err!("invalid entry id"))?;
-
             let doc_path = result.save_path;
             if doc_path.exists() {
                 continue;
             }
 
             let mut file = File::create(&doc_path)?;
-
             let mut url = Url::parse(&instance.url).unwrap();
             url.set_path(&result.link.href.unwrap());
 
@@ -452,7 +429,10 @@ fn main() -> Result<(), Error> {
                 .and_then(|mut response| response.copy_to(&mut file));
 
             if let Err(err) = response {
-                eprintln!("Can't download {}: {:#}.", uuid, err);
+                plato::show_notification(&format!(
+                    "Error downloading '{}': {:#}.",
+                    result.entry.title, err
+                ));
                 fs::remove_file(doc_path).ok();
                 continue;
             }
@@ -491,26 +471,22 @@ fn main() -> Result<(), Error> {
                     "file": file_info,
                 });
 
-                let event = json!({
-                    "type": "addDocument",
-                    "info": &info,
-                });
-
-                println!("{}", event);
+                plato::add_document(info);
             }
         }
 
         if !is_empty {
-            let message = format!("Finished syncing with '{}'", name);
-            let event = json!({
-                "type": "notify",
-                "message": message,
-            });
-            println!("{}", event);
+            plato::show_notification(&format!("Finished syncing with '{}'", name));
         }
     }
 
     Ok(())
+}
+
+fn main() {
+    if let Err(err) = load_and_process_opds() {
+        plato::show_notification(&format!("Error: {err}"));
+    }
 }
 
 pub fn load_toml<T, P: AsRef<Path>>(path: P) -> Result<T, Error>
