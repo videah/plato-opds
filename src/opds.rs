@@ -69,3 +69,25 @@ pub struct Link {
     #[serde(rename = "@type")]
     pub file_type: Option<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Test parsing an OPDS entry for Frank Herbert's Dune.
+    #[test]
+    fn parse_entry() {
+        let xml = include_str!("../tests/entry.xml");
+        let entry = quick_xml::de::from_str::<Entry>(&xml);
+        assert!(entry.is_ok());
+
+        let entry = entry.unwrap();
+        assert_eq!(entry.title, "Dune");
+        assert_eq!(entry.id, "urn:uuid:56e99d4d-bef9-445e-8162-35aaef306006");
+        assert_eq!(entry.authors.unwrap()[0].name, "Frank Herbert");
+        assert_eq!(
+            entry.publishers.unwrap()[0].name,
+            "Penguin Publishing Group"
+        );
+    }
+}

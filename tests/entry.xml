@@ -1,0 +1,44 @@
+<entry>
+    <title>Dune</title>
+    <id>urn:uuid:56e99d4d-bef9-445e-8162-35aaef306006</id>
+    <updated>2024-03-17T21:22:03+00:00</updated>
+
+    <author>
+        <name>Frank Herbert</name>
+    </author>
+
+    <publisher>
+        <name>Penguin Publishing Group</name>
+    </publisher>
+
+    <published>1965-08-01T00:00:00+00:00</published>
+
+    <dcterms:language>eng</dcterms:language>
+
+    <category scheme="http://www.bisg.org/standards/bisac_subject/index.html"
+              term="Fiction"
+              label="Fiction"/>
+
+    <category scheme="http://www.bisg.org/standards/bisac_subject/index.html"
+              term="Sci-Fi"
+              label="Sci-Fi"/>
+
+    <summary>Frank Herbert&#39;s classic masterpiece—a triumph of the imagination and one of the bestselling science
+        fiction novels of all time.SOON TO BE A MAJOR MOTION PICTURE directed by Denis Villeneuve, starring Timothée
+        Chalamet, Josh Brolin, Jason Momoa, Zendaya, Rebecca Ferguson, Oscar Isaac, Javier Bardem, Dave Bautista,
+        Stellan Skarsgård, and Charlotte Rampling.Set on the desert planet Arrakis, Dune is the story of the boy Paul
+        Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the
+        &#34;spice&#34; melange, a drug capable of extending life and enhancing consciousness. Coveted across the known
+        universe, melange is a prize worth killing for....When House Atreides is betrayed, the destruction of Paul&#39;s
+        family will set the boy on a journey toward a destiny greater than he could ever have imagined. And as he
+        evolves into the mysterious man known as Muad&#39;Dib, he will bring to fruition humankind&#39;s most...
+    </summary>
+
+    <link type="image/jpeg" href="/opds/cover/79" rel="http://opds-spec.org/image"/>
+    <link type="image/jpeg" href="/opds/cover/79" rel="http://opds-spec.org/image/thumbnail"/>
+
+
+    <link rel="http://opds-spec.org/acquisition" href="/opds/download/79/epub/"
+          length="1936779" mtime="2024-03-17T21:22:03+00:00" type="application/epub+zip"/>
+
+</entry>
