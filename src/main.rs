@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     env,
+    fmt::Display,
     fs::{self, File},
     io,
     path::{Path, PathBuf},
@@ -119,7 +120,6 @@ impl FromStr for FileType {
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize)]
-
 enum LinkType {
     Acquisition,
     Cover,
@@ -192,14 +192,15 @@ impl FromStr for FileExtension {
     }
 }
 
-impl ToString for FileExtension {
-    fn to_string(&self) -> String {
-        match *self {
+impl Display for FileExtension {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match *self {
             FileExtension::Epub => "epub".to_string(),
             FileExtension::Cbz => "cbz".to_string(),
             FileExtension::Pdf => "pdf".to_string(),
             FileExtension::Other(ref s) => s.to_string(),
-        }
+        };
+        write!(f, "{}", str)
     }
 }
 
@@ -341,7 +342,7 @@ fn main() -> Result<(), Error> {
             let url_string = next_link.href.clone().expect("Paginated link is empty");
             let url = match url_string.starts_with('/') {
                 true => {
-                    let url = Url::parse(&instance.url).unwrap();
+                    let url = Url::parse(&instance.url)?;
                     let host = url.host_str().expect("No host in instance url");
                     let new_url = format!("{}://{}{}", url.scheme(), host, url_string);
 
