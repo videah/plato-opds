@@ -1,3 +1,5 @@
+mod opds;
+
 use std::{
     collections::HashMap,
     env,
@@ -19,15 +21,35 @@ use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::json;
 use url::Url;
 
+use crate::opds::{Entry, Feed, Instance, Link};
+
 const SETTINGS_PATH: &str = "Settings.toml";
 
+/// Holds the settings for the application converted from a TOML file.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "kebab-case")]
 struct Settings {
+    /// Mapping of server names to their respective [Instance] settings.
     servers: HashMap<String, Instance>,
+    /// List of preferred file types to download (i.e. application/x-cbz or application/pdf).
     preferred_file_types: Vec<String>,
+    /// Whether files should be placed in a directory named after the server they have been pulled
+    /// from.
     use_server_name_directories: bool,
+    /// Whether files should be placed in directories based on their file type, giving more
+    /// organization in Plato's UI. How these folders should be mapped to a name can be
+    /// configured in the `organization` table.
     organize_by_file_type: bool,
+    /// Mapping of file extensions to directory names. Used when `organize_by_file_type` is true.
+    /// Key's are file extensions and values are the directory names they should be placed in.
+    ///
+    /// ## Example
+    /// ```toml
+    /// [organization]
+    /// epub = "Books"
+    /// cbz = "Manga"
+    /// pdf = "Documents"
+    /// ```
     organization: HashMap<String, String>,
 }
 
@@ -49,60 +71,16 @@ impl Default for Settings {
     }
 }
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-#[serde(default, rename_all = "kebab-case")]
-struct Instance {
-    url: String,
-    username: Option<String>,
-    password: Option<String>,
-    sync_deletes: Option<bool>,
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-struct Feed {
-    #[serde(rename = "entry")]
-    entries: Vec<Entry>,
-    #[serde(rename = "link")]
-    links: Vec<Link>,
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-struct Entry {
-    title: String,
-    id: String,
-    #[serde(rename = "author")]
-    authors: Option<Vec<Author>>,
-    #[serde(rename = "publisher")]
-    publishers: Option<Vec<Publisher>>,
-    #[serde(rename = "link")]
-    links: Option<Vec<Link>>,
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-struct Author {
-    name: String,
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-struct Publisher {
-    name: String,
-}
-
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
-struct Link {
-    #[serde(rename = "@rel")]
-    rel: Option<LinkType>,
-    #[serde(rename = "@href")]
-    href: Option<String>,
-    #[serde(rename = "@type")]
-    file_type: Option<String>,
-}
-
+/// The type of file in a link. Used to easily convert between MIME types and file extensions.
 #[derive(PartialEq, Debug, Clone)]
 enum FileType {
+    /// The file is an EPUB, likely a book.
     Epub,
+    /// The file is a CBZ, likely a comic or manga.
     Cbz,
+    /// The file is a PDF, likely a document.
     Pdf,
+    /// The file is of an unknown type. Contains the MIME type.
     Other(String),
 }
 
@@ -331,7 +309,7 @@ fn main() -> Result<(), Error> {
         let xml = response.text()?;
         let mut feed = quick_xml::de::from_str::<Feed>(&xml)?;
 
-        // Check if a `next` link exists, if so the catalog is paginated and we need to crawl until
+        // Check if a `next` link exists, if so the catalog is paginated, and we need to crawl until
         // it doesn't exist.
         while let Some(next_link) = feed
             .links
