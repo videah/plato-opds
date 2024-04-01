@@ -1,5 +1,6 @@
 //! Contains the structures for parsing OPDS feeds.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::LinkType;
@@ -40,6 +41,8 @@ pub struct Entry {
     /// The publisher of the book.
     #[serde(rename = "publisher")]
     pub publishers: Option<Vec<Publisher>>,
+    /// The date the book was published.
+    pub published: Option<DateTime<Utc>>,
     /// The links to the book's resources. Usually contains a link to the book files.
     #[serde(rename = "link")]
     pub links: Option<Vec<Link>>,
@@ -88,6 +91,10 @@ mod tests {
         assert_eq!(
             entry.publishers.unwrap()[0].name,
             "Penguin Publishing Group"
+        );
+        assert_eq!(
+            entry.published.unwrap(),
+            DateTime::parse_from_rfc3339("1965-08-01T00:00:00+00:00").unwrap()
         );
     }
 }

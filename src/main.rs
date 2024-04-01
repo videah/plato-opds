@@ -15,7 +15,7 @@ use std::{
 };
 
 use anyhow::{format_err, Context, Error};
-use chrono::{Local, Utc};
+use chrono::{Datelike, Local, Utc};
 use reqwest::blocking::Client;
 use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::json;
@@ -473,12 +473,17 @@ fn main() -> Result<(), Error> {
                     .next()
                     .map_or("Unknown Author".to_string(), |author| author.name);
 
+                let year = match result.entry.published {
+                    Some(date) => date.year().to_string(),
+                    None => "".to_string(),
+                };
+
                 // Get the current time.
                 let updated_at = Utc::now();
                 let info = json!({
                     "title": result.entry.title,
                     "author": author,
-                    "year": "1998",
+                    "year": year,
                     "identifier": result.entry.id,
                     "added": updated_at.with_timezone(&Local)
                                        .format("%Y-%m-%d %H:%M:%S")
