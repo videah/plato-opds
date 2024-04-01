@@ -339,8 +339,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                 let uuid = entry
                     .id
                     .strip_prefix("urn:uuid:")
-                    .ok_or_else(|| format_err!("invalid entry id"))
-                    .unwrap();
+                    .ok_or_else(|| format_err!("invalid entry id"))?;
 
                 if let Err(err) = link {
                     plato::show_notification(&format!(
@@ -351,8 +350,8 @@ fn load_and_process_opds() -> Result<(), Error> {
                 }
 
                 // Get the file type of the link.
-                let file_type_string = link.as_ref().unwrap().file_type.clone().unwrap();
-                let file_type = FileType::from_str(&file_type_string).unwrap();
+                let file_type_string = link.as_ref()?.file_type.clone()?;
+                let file_type = FileType::from_str(&file_type_string)?;
                 let file_extension = FileExtension::from(&file_type);
                 let file_name = format!("{}.{}", uuid, file_extension.to_string());
 
@@ -380,7 +379,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                         Some(directory) => {
                             let organized_path = doc_path.join(directory);
                             if !organized_path.exists() {
-                                fs::create_dir(&organized_path).unwrap();
+                                fs::create_dir(&organized_path)?
                             }
                             organized_path
                         }
@@ -397,7 +396,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                 }
 
                 Some(EntryResult {
-                    link: link.unwrap(),
+                    link: link?,
                     file_extension,
                     entry,
                     save_path: doc_path,
@@ -419,8 +418,8 @@ fn load_and_process_opds() -> Result<(), Error> {
             }
 
             let mut file = File::create(&doc_path)?;
-            let mut url = Url::parse(&instance.url).unwrap();
-            url.set_path(&result.link.href.unwrap());
+            let mut url = Url::parse(&instance.url)?;
+            url.set_path(&result.link.href?);
 
             let response = client
                 .get(url)
