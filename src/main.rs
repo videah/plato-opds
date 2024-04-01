@@ -336,10 +336,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                     .ok_or_else(|| format_err!("no acquisition link found"));
 
                 // Strip 'urn:uuid:' prefix.
-                let uuid = entry
-                    .id
-                    .strip_prefix("urn:uuid:")
-                    .ok_or_else(|| format_err!("invalid entry id"))?;
+                let uuid = entry.id.strip_prefix("urn:uuid:")?;
 
                 if let Err(err) = link {
                     plato::show_notification(&format!(
@@ -350,8 +347,8 @@ fn load_and_process_opds() -> Result<(), Error> {
                 }
 
                 // Get the file type of the link.
-                let file_type_string = link.as_ref()?.file_type.clone()?;
-                let file_type = FileType::from_str(&file_type_string)?;
+                let file_type_string = link.as_ref().ok()?.file_type.clone()?;
+                let file_type = FileType::from_str(&file_type_string).ok()?;
                 let file_extension = FileExtension::from(&file_type);
                 let file_name = format!("{}.{}", uuid, file_extension.to_string());
 
@@ -379,7 +376,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                         Some(directory) => {
                             let organized_path = doc_path.join(directory);
                             if !organized_path.exists() {
-                                fs::create_dir(&organized_path)?
+                                fs::create_dir(&organized_path).ok()?
                             }
                             organized_path
                         }
@@ -396,7 +393,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                 }
 
                 Some(EntryResult {
-                    link: link?,
+                    link: link.ok()?,
                     file_extension,
                     entry,
                     save_path: doc_path,
@@ -419,7 +416,10 @@ fn load_and_process_opds() -> Result<(), Error> {
 
             let mut file = File::create(&doc_path)?;
             let mut url = Url::parse(&instance.url)?;
-            url.set_path(&result.link.href?);
+            url.set_path(&result.link.href.ok_or(format_err!(
+                "no href found for link in '{}'",
+                result.entry.title
+            ))?);
 
             let response = client
                 .get(url)
