@@ -375,7 +375,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                         Some(directory) => {
                             let organized_path = doc_path.join(directory);
                             if !organized_path.exists() {
-                                fs::create_dir(&organized_path).ok()?
+                                fs::create_dir_all(&organized_path).ok()?
                             }
                             organized_path
                         }
