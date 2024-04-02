@@ -481,12 +481,16 @@ fn load_and_process_opds() -> Result<(), Error> {
     Ok(())
 }
 
-fn main() {
+fn main() -> Result<(), Error> {
+    log_panics::init();
     if let Err(err) = load_and_process_opds() {
         eprintln!("Error: {:#}", err);
         plato::show_notification(&format!("Error: {err}"));
         fs::write("opds_error.txt", format!("{:#}", err)).ok();
+        return Err(err);
     }
+
+    Ok(())
 }
 
 pub fn load_toml<T, P: AsRef<Path>>(path: P) -> Result<T, Error>
