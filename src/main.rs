@@ -260,7 +260,6 @@ fn load_and_process_opds() -> Result<(), Error> {
     }
 
     let client = Client::builder().user_agent("Plato-OPDS/0.1.0").build()?;
-
     let sigterm = Arc::new(AtomicBool::new(false));
     signal_hook::flag::register(signal_hook::consts::SIGTERM, Arc::clone(&sigterm))?;
 
@@ -484,7 +483,9 @@ fn load_and_process_opds() -> Result<(), Error> {
 
 fn main() {
     if let Err(err) = load_and_process_opds() {
+        eprintln!("Error: {:#}", err);
         plato::show_notification(&format!("Error: {err}"));
+        fs::write("opds_error.txt", format!("{:#}", err)).ok();
     }
 }
 
