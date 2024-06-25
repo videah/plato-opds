@@ -458,6 +458,21 @@ fn load_and_process_opds() -> Result<(), Error> {
 
                 // Get the current time.
                 let updated_at = Utc::now();
+
+                let mut read_state = json!({
+                    "opened": updated_at.with_timezone(&Local)
+                                       .format("%Y-%m-%d %H:%M:%S")
+                                       .to_string(),
+                    "currentPage": 0,
+                    "PagesCount": 1,
+                    "finished": false,
+                    "dithered": "false"
+                });
+
+                if instance.url.contains("/readbooks") {
+                    *read_state.pointer_mut("/finished").unwrap() = true.into();
+                }
+
                 let info = json!({
                     "title": result.entry.title,
                     "author": author,
@@ -467,6 +482,7 @@ fn load_and_process_opds() -> Result<(), Error> {
                                        .format("%Y-%m-%d %H:%M:%S")
                                        .to_string(),
                     "file": file_info,
+                    "reader": read_state
                 });
 
                 plato::add_document(info);
